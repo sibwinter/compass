@@ -1,0 +1,26 @@
+
+{% extends 'base.html' %}
+
+{% block title %}
+    Пост {{product.name }}
+{% endblock %}
+
+{% block content %}
+      <div class="row">
+        
+        <article class="col-12 col-md-9">
+              <p>
+            {{ product.name }}<p>
+            {{ product.main_category.name }}<p>
+            {{ product.model_line.name }}<p>
+              <a href="{{ url }}"> скачать </a> <p>
+               {%if is_on_server%} 
+                <a href="{{ site_url }}"> посмотреть на сервере </a> <p>
+               {%else %}
+                <a href="{% url 'products:shoot_instruction_to_server' product.pk %}"> Отправить инструкцию на сервер<p></a>
+               {%endif%} 
+        </article>
+      </div> 
+
+      
+{% endblock %}
