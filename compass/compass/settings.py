@@ -41,6 +41,7 @@ INSTALLED_APPS = [
     'instructions',
     'users',
     'products',
+    'partners',
     'core'
 ]
 
@@ -60,7 +61,7 @@ TEMPLATES_DIR = os.path.join(BASE_DIR, 'templates')
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [TEMPLATES_DIR,],
+        'DIRS': [TEMPLATES_DIR, ],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -140,5 +141,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 MAX_EMAIL_LENGTH = 100
 
-PRODUCTS_AT_PAGE = 20
-# Товаров на странице
+PRODUCTS_AT_PAGE = 20  # Товаров на странице

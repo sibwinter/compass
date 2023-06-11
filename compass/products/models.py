@@ -3,12 +3,15 @@ import uuid
 from django.db import models
 from slugify import slugify
 
+from partners.models import Partner
+
 # Create your models here.
+
 
 def get_upload_path(instance, filename):
     new_name = slugify(filename[:-4])+'.pdf'
 
-    return os.path.join('instructions/',instance.model_line.slug, new_name)
+    return os.path.join('instructions/', instance.model_line.slug, new_name)
 
 
 class Model_line(models.Model):
@@ -33,12 +36,14 @@ class Model_line(models.Model):
         default=uuid.uuid1
 
     )
+
     class Meta:
         verbose_name = 'Модельная линейка'
         verbose_name_plural = 'Модельные линейки'
 
     def __str__(self):
         return f'{self.name}'
+
 
 class Сategories(models.Model):
     """Категория продукции."""
@@ -47,10 +52,11 @@ class Сategories(models.Model):
         max_length=250,
         unique=True,
     )
+
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
-    
+
     def __str__(self):
         return f'Категория {self.name}'
 
@@ -81,6 +87,34 @@ class Product(models.Model):
         upload_to=get_upload_path  # сохраняем файл в папку линейки
     )
 
+    def __str__(self):
+        return self.name
+    
     class Meta:
         verbose_name = 'Продукция'
         verbose_name_plural = 'Продукция'
+
+
+class Product_on_partner_status(models.Model):
+    product = models.ForeignKey(
+        Product,
+        verbose_name="Продукт",
+        on_delete=models.CASCADE,
+    )
+    status = models.BooleanField(
+        verbose_name="Залит на сайт"
+    )
+    partner = models.ForeignKey(
+        Partner,
+        verbose_name="Партнер",
+        on_delete=models.CASCADE,
+    )
+    link = models.CharField(
+        max_length=250,
+        blank=True,
+        verbose_name='ссылка на продукт у партнера'
+    )
+
+    class Meta:
+        verbose_name = 'Продукция у партнера'
+        verbose_name_plural = 'Продукция у партнера'
