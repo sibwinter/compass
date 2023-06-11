@@ -28,7 +28,3 @@ class СategoriesAdmin(admin.ModelAdmin):
 class Model_lineAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
-
-@admin.register(Product_on_partner_status)
-class Product_on_partner_statusAdmin(admin.ModelAdmin):
-    list_display=('product','partner', 'status')

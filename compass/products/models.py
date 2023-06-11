@@ -100,6 +100,7 @@ class Product_on_partner_status(models.Model):
         Product,
         verbose_name="Продукт",
         on_delete=models.CASCADE,
+        related_name='partner_status'
     )
     status = models.BooleanField(
         verbose_name="Залит на сайт"
@@ -108,6 +109,7 @@ class Product_on_partner_status(models.Model):
         Partner,
         verbose_name="Партнер",
         on_delete=models.CASCADE,
+        related_name='partner_status'
     )
     link = models.CharField(
         max_length=250,
@@ -115,6 +117,9 @@ class Product_on_partner_status(models.Model):
         verbose_name='ссылка на продукт у партнера'
     )
 
+    def __str__(self):
+        return 'Залито' if self.status else 'Не залито'
+    
     class Meta:
         verbose_name = 'Продукция у партнера'
         verbose_name_plural = 'Продукция у партнера'

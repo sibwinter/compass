@@ -12,7 +12,7 @@ from compass.settings import MEDIA_ROOT
 from compass.settings import BASE_DIR, MEDIA_URL
 
 
-from .models import Product
+from .models import Product, Product_on_partner_status
 
 
 def pagination(posts, page_number):
@@ -23,7 +23,7 @@ def pagination(posts, page_number):
 def index(request):
     template = 'products/index.html'
     description = 'Продукция фабрики'
-    products = Product.objects.all().select_related('model_line','main_category')
+    products = Product.objects.all().select_related('model_line', 'main_category')
     context = {
         'page_obj': pagination(products, request.GET.get('page')),
         'description': description
@@ -37,20 +37,21 @@ def product_detail(request, product_pk):
     product = get_object_or_404(
         Product,
         pk=product_pk
-    )    
-    url =  product.instruction.url
+    )
+    statuses = Product_on_partner_status.objects.filter(product=product) 
+    url = product.instruction.url
     current_path = os.path.dirname(product.instruction.url)
     url = os.path.join(current_path, url)
-    site_url = 'https://compass-shop.ru/pdf/' + product.model_line.slug+ '/'+ os.path.basename(url)
+    site_url = 'https://compass-shop.ru/pdf/' + product.model_line.slug + '/' + os.path.basename(url)
     is_on_server = requests.get(site_url).status_code == 200
 
-    
     context = {
         'product': product,
         'description': description,
-        'url':url,
-        'site_url':site_url,
-        'is_on_server':is_on_server
+        'statuses': statuses,
+        'url': url,
+        'site_url': site_url,
+        'is_on_server': is_on_server
 
     }
     return render(request, template, context)

@@ -19,7 +19,31 @@
                {%else %}
                 <a href="{% url 'products:shoot_instruction_to_server' product.pk %}"> Отправить инструкцию на сервер<p></a>
                {%endif%} 
+
         </article>
+
+        <div class="bd-example-snippet bd-code-snippet"><div class="bd-example m-0 border-0">
+          <table class="table table-striped">
+                
+              <thead>
+              <tr>
+                <th scope="col">Партнер</th>
+                <th scope="col">Статус</th>
+                <th scope="col">Ссылка</th>
+              </tr>
+              </thead>              
+              <tbody>
+                {% for status in statuses %}
+                <tr>
+                  <th scope="row">{{ status.partner.name}}</th>
+                  {% if status.status %} 
+                    <th>Загружено</th> 
+                  {% else %} 
+                    <th> Не загружено</th>
+                  {% endif %}
+                  <th>{{status.link}}</th> 
+                </tr>  
+                {% endfor %}  
       </div> 
 
       
