@@ -2,6 +2,9 @@ from django.db import models
 
 
 class Partner(models.Model):
+    """Модель описывает партнера-контрагента.
+    
+    """
     name = models.CharField(
         max_length=100,
         unique=True,
@@ -45,7 +48,7 @@ class Partner(models.Model):
 
     def __str__(self):
         return self.name
-    
+
     class Meta:
         verbose_name = 'Партнер'
         verbose_name_plural = 'Партнеры'

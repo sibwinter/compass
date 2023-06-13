@@ -82,7 +82,7 @@ def shoot_instruction_to_server(request, product_pk):
 @csrf_protect
 def product_create(request):
     form = ProductForm(request.POST or None,
-                    files=request.FILES or None,)
+                       files=request.FILES or None,)
     if form.is_valid():
         product = form.save(commit=False)
         product.save()

@@ -71,14 +71,16 @@ class Product(models.Model):
 
     main_category = models.ForeignKey(
         Сategories,
+        verbose_name='Главная категория',
         on_delete=models.CASCADE,
-        related_name='product'
+        related_name='products'
     )
 
     model_line = models.ForeignKey(
         Model_line,
+        verbose_name='Модельная линейка',
         on_delete=models.CASCADE,
-        related_name='product'
+        related_name='products'
     )
 
     instruction = models.FileField(
@@ -118,7 +120,7 @@ class Product_on_partner_status(models.Model):
     )
 
     def __str__(self):
-        return 'Залито' if self.status else 'Не залито'
+        return f'{self.partner.name} - Залито' if self.status else f'{self.partner.name} - Не залито'
     
     class Meta:
         verbose_name = 'Продукция у партнера'
