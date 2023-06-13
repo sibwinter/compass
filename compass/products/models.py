@@ -1,9 +1,11 @@
 import os
 import uuid
 from django.db import models
+from django.db.models import UniqueConstraint
 from slugify import slugify
 
 from partners.models import Partner
+
 
 # Create your models here.
 
@@ -16,13 +18,34 @@ def get_upload_path(instance, filename):
 
 class Model_line(models.Model):
     """Модельная линейка."""
-    AN = 'Анастасия'
+    
     AS = 'Ассоль'
+    AT = 'Агата'
+    AN = 'Анастасия'
+    VI = 'Виктория'
     DS = 'Дримстар'
+    IZ = 'Изабель'
+    IR = 'Ирма'
+    MB = 'Монблан'
+    OF = 'Офис'
+    SL = 'Скайлайт'
+    SO = 'Соня Премиум'
+    EM = 'Элизабет'
+    EL = 'Эмилия'
     MODEL_LINES_NAMES = [
-        (AN, 'Анастасия'),
         (AS, 'Ассоль'),
+        (AT, 'Агата'),
+        (AN, 'Анастасия'),
+        (VI, 'Виктория'),
         (DS, 'Дримстар'),
+        (IZ, 'Изабель'),
+        (IR, 'Ирма'),
+        (MB, 'Монблан'),
+        (OF, 'Офис'),
+        (SL, 'Скайлайт'),
+        (SO, 'Соня Премиум'),
+        (EM, 'Элизабет'),
+        (EL, 'Эмилия'),
     ]
     name = models.CharField(
         choices=MODEL_LINES_NAMES,
@@ -125,3 +148,9 @@ class Product_on_partner_status(models.Model):
     class Meta:
         verbose_name = 'Продукция у партнера'
         verbose_name_plural = 'Продукция у партнера'
+        constraints = [
+            UniqueConstraint(
+                fields=['product', 'partner'],
+                name='unique_product_status'),
+        ]
+        
