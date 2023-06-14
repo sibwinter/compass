@@ -89,3 +89,19 @@ def product_create(request):
         return redirect(reverse('products:product_detail', args=[product.pk]))
 
     return render(request, 'products/product_create.html', {'form': form})
+
+
+def product_edit(request, product_pk):
+    product = get_object_or_404(Product, pk=product_pk)
+    # if product.author == request.user:
+    form = ProductForm(
+        request.POST or None,
+        files=request.FILES or None,
+        instance=product
+    )
+    if form.is_valid():
+        product.save()
+        return redirect(reverse('products:product_detail', args=[product_pk]))
+    return render(request,
+                    'products/product_create.html',
+                    {'form': form, 'is_edit': True})

@@ -1,8 +1,9 @@
 {% extends 'base.html' %}
 
 {% block title %}
-    Пост {{post.text|truncatechars:30 }}
+    Пост {{product.name }}
 {% endblock %}
+
 {% block content %}
   <div class="mb-5">
         <h1>Все посты пользователя {{ author.username }} </h1>
@@ -36,4 +37,5 @@
 
   </div>
     {% include 'includes/paginator.html' %}
+
 {% endblock %} 

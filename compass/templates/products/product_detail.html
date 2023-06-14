@@ -38,13 +38,19 @@
                   <th scope="row">{{ status.partner.name}}</th>
                   {% if status.status %} 
                     <th>Загружено</th> 
+                    <th><a href="{{status.link}}"> {{status.link}}</a></th> 
                   {% else %} 
                     <th> Не загружено</th>
                   {% endif %}
-                  <th>{{status.link}}</th> 
                 </tr>  
                 {% endfor %}  
       </div> 
-
+      <a
+        class="btn btn-lg btn-primary"
+        href="{% url 'products:product_edit' product.pk %}" role="button"
+        >Изменить
+      </a>
+    </div> 
+      
       
 {% endblock %}
