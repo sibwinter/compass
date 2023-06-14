@@ -1,0 +1,52 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% block title %}
+    Партнер {{partner.name }}
+{% endblock %}
+
+{% block content %}
+      <div class="row">
+        <h1>Информация о партнере: {{ partner.name }} </h1>
+        <article class="col-12 col-md-9">
+          <p>
+            Название партнера: {{ partner.name }}<p>
+            Полное название: {{ partner.full_name_official }}<p>
+            Сайт: <a href="{{ partner.site }}">{{ partner.site }}</a><p>
+            Менеджер: {{ partner.manager }}<p>
+            Телефон менеджера: {{ partner.phone }}<p>
+            Емейл менеджера: {{ partner.email }}<p>
+            Схема сотрудничества: {{ partner.partnership_shema }}<p>
+            Комментарий: {{ partner.comment }}<p>
+
+
+        </article>
+
+        <div class="bd-example-snippet bd-code-snippet">
+          <div class="bd-example m-0 border-0">
+            <table class="table table-striped">                
+              <thead>
+                <tr>
+                  <th scope="col">Модельная линейка</th>
+                  <th scope="col">Количество залито</th>
+                  <th scope="col">Всего</th>
+                </tr>
+              </thead>              
+              <tbody>
+                {% for line, count in  counts.items %}
+                <tr>
+                  <th scope="row">{{ line}}</th>
+                  <th>{{ count.0 }}</th> 
+                  <th>{{ count.1 }}</th> 
+                </tr>  
+                {% endfor %}  
+              </tbody>
+            </table>
+          </div> 
+        </div> 
+      </div> 
+      
+    </div> 
+      
+      
+{% endblock %}

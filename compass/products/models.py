@@ -57,7 +57,6 @@ class Model_line(models.Model):
         verbose_name='slug',
         unique=True,
         default=uuid.uuid1
-
     )
 
     class Meta:
@@ -108,6 +107,7 @@ class Product(models.Model):
 
     instruction = models.FileField(
         blank=True,
+        null=True,
         verbose_name="Инструкция",
         upload_to=get_upload_path  # сохраняем файл в папку линейки
     )

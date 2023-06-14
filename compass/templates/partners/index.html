@@ -1,0 +1,52 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+      <div class="row">
+        
+        <h1>{{ description }} </h1>
+        <article class="col-12">
+
+        <div class="bd-example-snippet bd-code-snippet">
+          <div class="bd-example m-0 border-0">
+            <table class="table table-striped">                
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Партнер</th>
+                  <th scope="col">Менеджер</th>
+                  <th scope="col">Сайт</th>
+                  <th scope="col">Емейл</th>
+                  <th scope="col">Схема</th>
+                  <th scope="col">Всего товаров</th>
+                </tr>
+              </thead>              
+              <tbody>
+                {% for partner, count in counts.items %}
+                <tr>
+                  <th>{{partner.pk}}</th>
+                  <th>
+                    <a href="{% url 'partners:partner_detail' partner.pk %}">{{partner.name}} </a>
+                  </th>
+                  <th>{{partner.manager}}</th>
+                  <th>{{partner.site}}</th>
+                  <th>{{partner.email}}</th>
+                  <th>{{partner.partnership_shema}}</th>
+                  <th> {{count}}</th> 
+                 
+                </tr>  
+                {% endfor %}  
+              </tbody>
+            </table>
+          </div> 
+        </div> 
+      </div> 
+
+    </article>
+    </div> 
+      
+      
+{% endblock %}

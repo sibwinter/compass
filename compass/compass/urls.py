@@ -7,6 +7,7 @@ from compass import settings
 
 urlpatterns = [
     path('', include('products.urls', namespace='products')),
+    path('', include('partners.urls', namespace='partners')),
     path('admin/', admin.site.urls),
     
 ]

@@ -1,0 +1,44 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+      <div class="row">
+        
+        <h1>{{ description }} </h1>
+        <article class="col-12 col-md-9">
+
+        <div class="bd-example-snippet bd-code-snippet">
+          <div class="bd-example m-0 border-0">
+            <table class="table table-striped">                
+              <thead>
+                <tr>
+                  <th scope="col">#</th>
+                  <th scope="col">Линейка</th>
+                  <th scope="col">Всего</th>
+                </tr>
+              </thead>              
+              <tbody>
+                {% for line, count in counts.items %}
+                <tr>
+                  <th>{{line.pk}}</th>
+                  <th>
+                    <a href="{% url 'products:model_line_detail' line.pk %}">{{line.name}} </a>
+                  </th>
+                  <th> {{count}}</th> 
+                 
+                </tr>  
+                {% endfor %}  
+              </tbody>
+            </table>
+          </div> 
+        </div> 
+      </div> 
+
+    </article>
+    </div> 
+      
+      
+{% endblock %}

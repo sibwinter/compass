@@ -3,14 +3,33 @@
 <nav class="navbar navbar-light" style="background-color: lightskyblue">
   <div class="container">
     <a class="navbar-brand" href="{% url 'products:index' %}">
-      <img src="{% static 'img/logo.png' %}" width="30" height="30" class="d-inline-block align-top" alt="">
-      <span style="color:red">Comp</span>ass</a>
+      <img src="{% static 'img/logo_web.png' %}" width="110" height="48" class="d-inline-block align-top" alt="">
+      </a>
       
       <ul class="nav nav-pills">
         {% with request.resolver_match.view_name as view_name %}
         
-        
-         
+        <li class="nav-item"> 
+          <a class="nav-link
+          {% if view_name  == 'partners:index' %}
+            active
+          {% endif %}
+          " href="{% url 'partners:index' %}">Партнеры</a>
+        </li>
+        <li class="nav-item"> 
+          <a class="nav-link
+          {% if view_name  == 'products:model_lines' %}
+            active
+          {% endif %}
+          " href="{% url 'products:model_lines' %}">Модельные линейки</a>
+        </li> 
+        <li class="nav-item"> 
+          <a class="nav-link
+          {% if view_name  == 'products:index' %}
+            active
+          {% endif %}
+          " href="{% url 'products:index' %}">Продукция фабрики</a>
+        </li> 
         <li class="nav-item"> 
           <a class="nav-link
           {% if view_name  == 'products:product_create' %}

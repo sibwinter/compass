@@ -7,17 +7,19 @@ from ftplib import FTP
 from pathlib import Path
 
 import requests
+
+from partners.models import Partner
 from .forms import ProductForm
 from compass.settings import MEDIA_ROOT
 from compass.settings import BASE_DIR, MEDIA_URL
 
 
-from .models import Product, Product_on_partner_status
+from .models import Model_line, Product, Product_on_partner_status
 
 
-def pagination(posts, page_number):
+def pagination(products, page_number):
     """ Функция для формирования пагинации на странице."""
-    paginator = Paginator(posts, 10)
+    paginator = Paginator(products, 10)
     return paginator.get_page(page_number)
 
 def index(request):
@@ -39,12 +41,16 @@ def product_detail(request, product_pk):
         pk=product_pk
     )
     statuses = Product_on_partner_status.objects.filter(product=product) 
-    url = product.instruction.url
-    current_path = os.path.dirname(product.instruction.url)
-    url = os.path.join(current_path, url)
-    site_url = 'https://compass-shop.ru/pdf/' + product.model_line.slug + '/' + os.path.basename(url)
-    is_on_server = requests.get(site_url).status_code == 200
-
+    if product.instruction:
+        url = product.instruction.url
+        current_path = os.path.dirname(product.instruction.url)
+        url = os.path.join(current_path, url)
+        site_url = 'https://compass-shop.ru/pdf/' + product.model_line.slug + '/' + os.path.basename(url)
+        is_on_server = requests.get(site_url).status_code == 200
+    else:
+        url = 'Null'
+        site_url = 'Null'
+        is_on_server = False
     context = {
         'product': product,
         'description': description,
@@ -105,3 +111,56 @@ def product_edit(request, product_pk):
     return render(request,
                     'products/product_create.html',
                     {'form': form, 'is_edit': True})
+
+
+def model_line_detail(request, model_line_pk):
+    template = 'products/model_line_detail.html'
+    description = 'Подробнее о линейке'
+    
+    model_line = get_object_or_404(
+        Model_line,
+        pk=model_line_pk
+    )
+
+    partners = [object for object in Partner.objects.all()]
+    counts: dict = {}  # Словарь значений {Модельная линейка: кол-во товаров у партнера}
+
+    for partner in partners:
+        current_count = (Product_on_partner_status.objects
+            .filter(partner=partner)
+            .filter(product__model_line=model_line)
+            .filter(status=True)
+            .count()
+        )
+        total_count = model_line.products.count()
+        counts[partner] = (current_count, total_count)
+        
+
+    context = {
+        'partners': partners,
+        'model_line': model_line,
+        'counts': counts,        
+    }
+    return render(request, template, context)
+
+def model_lines(request):
+    template = 'products/model_lines.html'
+    description = 'Модельные линейки мебельно фабрики Компасс'
+    model_lines = [object for object in Model_line.objects.all()]
+    counts: dict = {}
+    for line in model_lines:
+        """current_count = (Product_on_partner_status.objects
+                .filter(product__model_line=line)
+                .filter(status=True)
+                .count()
+            )"""
+        total_count = (Product.objects
+                .filter(model_line=line)
+                .count()
+            )
+        counts[line] =  total_count
+    context = { 
+        'counts': counts,
+        'description': description
+    }
+    return render(request, template, context)

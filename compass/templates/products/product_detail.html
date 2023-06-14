@@ -8,18 +8,19 @@
 {% block content %}
       <div class="row">
         
+        <h1>Информация о продукции: {{ product.name }} </h1>
         <article class="col-12 col-md-9">
               <p>
-            {{ product.name }}<p>
-            {{ product.main_category.name }}<p>
-            {{ product.model_line.name }}<p>
-              <a href="{{ url }}"> скачать </a> <p>
-               {%if is_on_server%} 
-                <a href="{{ site_url }}"> посмотреть на сервере </a> <p>
-               {%else %}
-                <a href="{% url 'products:shoot_instruction_to_server' product.pk %}"> Отправить инструкцию на сервер<p></a>
-               {%endif%} 
-
+            Название товара: {{ product.name }}<p>
+            Категория товара:{{ product.main_category.name }}<p>
+            Модельная линейка:{{ product.model_line.name }}<p>
+               {%if product.instruction%}
+                {%if is_on_server%} 
+                  <a href="{{ site_url }}"> Инструкция </a> <p>
+                {%else %}
+                  <a href="{% url 'products:shoot_instruction_to_server' product.pk %}"> Отправить инструкцию на сервер<p></a>
+                {%endif%} 
+              {%endif%} 
         </article>
 
         <div class="bd-example-snippet bd-code-snippet">
@@ -27,20 +28,26 @@
             <table class="table table-striped">                
               <thead>
                 <tr>
+                  <th scope="col">#</th>
                   <th scope="col">Партнер</th>
                   <th scope="col">Статус</th>
                   <th scope="col">Ссылка</th>
                 </tr>
               </thead>              
-              
+              <tbody>
                 {% for status in statuses %}
                 <tr>
-                  <th scope="row">{{ status.partner.name}}</th>
+                  <th scope="row">
+                    {{ status.partner.pk}}
+                  </th>
+                  <th>
+                    <a href="{% url 'partners:partner_detail' status.partner.pk %}">{{ status.partner.name}} </a>
+                  </th>
                   {% if status.status %} 
-                    <th>Загружено</th> 
-                    <th><a href="{{status.link}}"> {{status.link}}</a></th> 
+                  <th>Загружено</th> 
+                  <th><a href="{{status.link}}"> {{status.link}}</a></th> 
                   {% else %} 
-                    <th> Не загружено</th>
+                  <th> Не загружено</th>
                   {% endif %}
                 </tr>  
                 {% endfor %}  

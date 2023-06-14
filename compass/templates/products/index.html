@@ -17,7 +17,7 @@
           <tr>
             <th scope="row">{{ product.pk}}</th>
             <td>{{ product.name}}</td>
-            <td>{{product.model_line.name }}</td>
+            <td><a href="{% url 'products:model_line_detail' product.model_line.pk %}">{{product.model_line.name }}</a></td>
             <td><a href="{% url 'products:product_detail' product.pk %}">подробнее</a></td>
             
           </tr>
@@ -29,5 +29,6 @@
         {% if not forloop.last %}<hr>{% endif %}
         
       
+        {% include 'includes/paginator.html' %}
 {% endblock %} 
 

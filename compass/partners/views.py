@@ -1,32 +1,56 @@
 import os
 from django.shortcuts import get_object_or_404, render
 
-from compass.partners.models import Partner
-from compass.products.models import Product_on_partner_status
+from partners.models import Partner
+from products.models import Model_line, Product_on_partner_status
 
 # Create your views here.
-def product_detail(request, product_pk):
+def partner_detail(request, partner_pk):
     template = 'partners/partner_detail.html'
     description = 'Подробнее о партнере'
     
-    product = get_object_or_404(
-        Partner,
-        pk=product_pk
-    )
-    statuses = Product_on_partner_status.objects.filter(product=product) 
-    url = product.instruction.url
-    current_path = os.path.dirname(product.instruction.url)
-    url = os.path.join(current_path, url)
-    site_url = 'https://compass-shop.ru/pdf/' + product.model_line.slug + '/' + os.path.basename(url)
-    is_on_server = requests.get(site_url).status_code == 200
-
+    partner = get_object_or_404(Partner,pk=partner_pk)
+    model_lines = [object.name for object in Model_line.objects.all()]
+    counts: dict = {}  # Словарь значений {Модельная линейка: кол-во товаров у партнера}
+    for line in model_lines:
+        current_count = (Product_on_partner_status.objects
+            .filter(partner=partner)
+            .filter(product__model_line__name=line)
+            .filter(status=True)
+            .count()
+        )
+        total_count = (Model_line.objects
+            .get(name=line)
+            .products
+            .count()
+        )
+        counts[line] = (current_count, total_count)
     context = {
-        'product': product,
-        'description': description,
-        'statuses': statuses,
-        'url': url,
-        'site_url': site_url,
-        'is_on_server': is_on_server
+        'partner': partner,
+        'counts': counts,     
 
+    }
+    return render(request, template, context)
+
+def index(request):
+    template = 'partners/index.html'
+    description = 'Партнеры мебельной фабрики Компасс'
+    partners = [object for object in Partner.objects.all()]
+    counts: dict = {}
+    for partner in partners:
+        """current_count = (Product_on_partner_status.objects
+                .filter(product__model_line=line)
+                .filter(status=True)
+                .count()
+            )"""
+        total_count = (Product_on_partner_status.objects
+                .filter(status=True)
+                .filter(partner=partner)
+                .count()
+            )
+        counts[partner] =  total_count
+    context = { 
+        'counts': counts,
+        'description': description
     }
     return render(request, template, context)
