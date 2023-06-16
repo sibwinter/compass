@@ -7,6 +7,7 @@ from ftplib import FTP
 from pathlib import Path
 
 import requests
+from products.parser import get_products_dict
 
 from partners.models import Partner
 from .forms import ProductForm
@@ -14,7 +15,7 @@ from compass.settings import MEDIA_ROOT
 from compass.settings import BASE_DIR, MEDIA_URL
 
 
-from .models import Model_line, Product, Product_on_partner_status
+from .models import Model_line, Product, Product_on_partner_status, Сategories
 
 
 def pagination(products, page_number):
@@ -164,3 +165,23 @@ def model_lines(request):
         'description': description
     }
     return render(request, template, context)
+
+
+def product_import(request):
+    feed = get_products_dict()
+
+    for sku, params in feed.items():
+        category,created = Сategories.objects.get_or_create(name=params['category'])   
+        print(category, created)
+        model_line,created = Model_line.objects.get_or_create(name=params['model_line'])  
+        model_line.save()   
+       # print(model_line)
+        category.save()   
+        """product, created = Product.objects.get_or_create(
+            main_category = category,
+            model_line = model_line,
+            name = params['name']
+        )
+        product.save()"""
+       # print(product)
+    return redirect(reverse('products:index'))
