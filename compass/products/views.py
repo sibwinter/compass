@@ -33,10 +33,11 @@ def index(request):
     }
     return render(request, template, context)
 
+
 def product_detail(request, product_pk):
     template = 'products/product_detail.html'
     description = 'Подробнее о товаре'
-    
+
     product = get_object_or_404(
         Product,
         pk=product_pk
@@ -144,6 +145,7 @@ def model_line_detail(request, model_line_pk):
     }
     return render(request, template, context)
 
+
 def model_lines(request):
     template = 'products/model_lines.html'
     description = 'Модельные линейки мебельно фабрики Компасс'
@@ -168,20 +170,39 @@ def model_lines(request):
 
 
 def product_import(request):
+    """Функция импорта товаров сз фида сайта в формате xml.
+    
+    Метод позволяет создать новые товары в базе данных или обновить существующие.
+    todo: добавить уведомление о кол-ве обновленных и добавленных товаров
+    """
     feed = get_products_dict()
 
     for sku, params in feed.items():
-        category,created = Сategories.objects.get_or_create(name=params['category'])   
-        print(category, created)
-        model_line,created = Model_line.objects.get_or_create(name=params['model_line'])  
-        model_line.save()   
-       # print(model_line)
-        category.save()   
-        """product, created = Product.objects.get_or_create(
-            main_category = category,
-            model_line = model_line,
-            name = params['name']
-        )
-        product.save()"""
+        cat_name = params['category'] if len(params['category']) > 0 else 'Default'
+        category, created = Сategories.objects.get_or_create(name=cat_name)
+        
+        model_line_name = params['model_line'] if len(params['model_line']) > 0 else 'Default'
+        model_line, created = Model_line.objects.get_or_create(name=model_line_name)
+        
+        #print(model_line, category, created)
+        product, created = Product.objects.get_or_create(id=params['id'])
+        print(product.name, product. model_line)
+        if created:
+            product.price = params['price']
+            product.main_category = category
+            product.sku = sku
+            product.name = params['name']
+            product.url = params['url']
+            product.description = params['description']
+            product.barcode = ''.join(params['barcode'])
+            product.id = params['id']
+            product.dimensions = ''.join(params['dimensions'])
+            product.model_line = model_line
+            product.height = float(params['height'].replace(',', '.')) if len(params['height']) > 0 else None
+            product.width = float(params['width'].replace(',', '.').replace('-', '.')) if len(params['width']) > 0 else None
+            product.depth = float(params['depth'].replace(',', '.')) if len(params['depth']) > 0 else None
+            product.weight = float(params['weight'].replace(',', '.')) if len(params['weight']) > 0 else None
+
+        product.save()
        # print(product)
     return redirect(reverse('products:index'))

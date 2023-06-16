@@ -11,11 +11,12 @@ class Product_on_partnerInstanceInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = (
+    list = (
         'name',
         'main_category',
         'model_line',
         'instruction')
+    search = ('main_category', 'model_line',)
     inlines = [Product_on_partnerInstanceInline, ]
 
 

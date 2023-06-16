@@ -48,14 +48,19 @@ class Model_line(models.Model):
         (EL, 'Эмилия'),
     ]
     name = models.CharField(
-        choices=MODEL_LINES_NAMES,
+        #  choices=MODEL_LINES_NAMES, -
         verbose_name='Наименование категории',
         max_length=250,
         unique=True,
+        blank=True,
+        null=True,
+        default='Default'
     )
     slug = models.SlugField(
         verbose_name='slug',
         unique=True,
+        blank=True,
+        null=True,
         default=uuid.uuid1
     )
 
@@ -90,28 +95,88 @@ class Product(models.Model):
         max_length=250,
         unique=True,
     )
-
     main_category = models.ForeignKey(
         Сategories,
+        blank=True,
+        null=True,
         verbose_name='Главная категория',
         on_delete=models.CASCADE,
         related_name='products'
     )
-
     model_line = models.ForeignKey(
         Model_line,
+        blank=True,
+        null=True,
         verbose_name='Модельная линейка',
         on_delete=models.CASCADE,
         related_name='products'
     )
-
     instruction = models.FileField(
         blank=True,
         null=True,
         verbose_name="Инструкция",
         upload_to=get_upload_path  # сохраняем файл в папку линейки
     )
-
+    price = models.FloatField(
+        verbose_name='Цена, руб.',
+        blank=True,
+        null=True
+    )
+    sku = models.CharField(
+        verbose_name='Артикул сайта',
+        max_length=250,
+        unique=True,
+        blank=True,
+        null=True
+    )
+    url = models.CharField(
+        verbose_name='Ссылка на сайт',
+        max_length=250,
+        unique=True,
+        blank=True,
+        null=True
+    )
+    description = models.TextField(
+        verbose_name='Описание товара',
+        blank=True,
+    )
+    dimensions = models.CharField(
+        verbose_name='Габариты',
+        max_length=250,
+        blank=True,
+    )
+    height = models.FloatField(
+        verbose_name='Высота изделия, см.',
+        blank=True,
+        null=True
+    )
+    width = models.FloatField(
+        verbose_name='Ширина изделия, см.',
+        blank=True,
+        null=True
+    )
+    depth = models.FloatField(
+        verbose_name='Глубина изделия, см.',
+        blank=True,
+        null=True
+    )
+    barcode = models.CharField(
+        verbose_name='Штрихкоды',
+        max_length=500,
+        blank=True,
+        null=True
+    )
+    weight = models.FloatField(
+        verbose_name='Вес изделия, кг.',
+        blank=True,
+        null=True
+    )
+    site_id = models.IntegerField(
+        verbose_name='ID товара с сайта',
+        blank=True,
+        unique=True,
+        null=True
+    )
     def __str__(self):
         return self.name
     
