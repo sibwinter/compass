@@ -25,8 +25,7 @@
               </thead>              
               <tbody>
                 {% for partner, count in counts.items %}
-                <tr>
-                  <th>{{partner.pk}}</th>
+                <tr> 
                   <th>
                     <a href="{% url 'partners:partner_detail' partner.pk %}">{{partner.name}} </a>
                   </th>

@@ -1,4 +1,5 @@
 import os
+from django.forms import modelformset_factory
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.urls import reverse
@@ -10,7 +11,7 @@ import requests
 from products.parser import get_products_dict
 
 from partners.models import Partner
-from .forms import ProductForm
+from .forms import ProductForm, ProductOnPartnerStatusForm
 from compass.settings import MEDIA_ROOT
 from compass.settings import BASE_DIR, MEDIA_URL
 
@@ -113,7 +114,8 @@ def product_create(request):
     return render(request, 'products/product_create.html', {'form': form})
 
 
-def product_edit(request, product_pk):
+def product_edit(request, product_pk):    
+    """Редактируем товар в наешй базе."""
     product = get_object_or_404(Product, pk=product_pk)
     # if product.author == request.user:
     form = ProductForm(
@@ -123,10 +125,39 @@ def product_edit(request, product_pk):
     )
     if form.is_valid():
         product.save()
-        return redirect(reverse('products:product_detail', args=[product_pk]))
+        return redirect(reverse('products:product_detail', args=[product_pk]))    
     return render(request,
-                    'products/product_create.html',
-                    {'form': form, 'is_edit': True})
+                  'products/product_create.html',
+                  {'form': form, 'is_edit': True})
+
+
+def product_in_partners_edit(request, product_pk):
+    """Редактируем наличие товара у поставщиков."""
+    product = get_object_or_404(Product, pk=product_pk)
+    """product_in_partners = get_object_or_404(Product_on_partner_status, product=product)
+    form = ProductOnPartnerStatusForm(request.POST or None,)"""
+    context ={}
+  
+    # creating a formset and 5 instances of GeeksForm
+    ProductInPartnersFormSet = modelformset_factory(
+        Product_on_partner_status, 
+        fields ="__all__", 
+        extra=0, 
+        can_delete=False
+    )
+    
+    formset = ProductInPartnersFormSet(queryset=Product_on_partner_status.objects.filter(product=product))
+    context['formset'] = formset
+    context['product'] = product
+    print(formset.is_valid())
+    if formset.is_valid():
+        instances = formset.save()
+        print(instances)
+        return redirect(reverse('products:product_detail', args=[product_pk]))
+        
+    return render(request,
+                      'products/products_in_partners_edit.html',
+                      context)
 
 
 def model_line_detail(request, model_line_pk):

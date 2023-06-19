@@ -5,7 +5,7 @@ from .models import Model_line, Product, Product_on_partner_status, Сategories
 
 class Product_on_partnerInstanceInline(admin.TabularInline):
     model = Product_on_partner_status
-    extra = 1
+    extra = 0
     min_num = 1
 
 

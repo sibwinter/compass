@@ -1,0 +1,14 @@
+
+{% extends 'base.html' %}
+{% load static%}
+{% block title %}
+     {{product.name }}
+{% endblock %}
+{% block content %}
+{% csrf_token %}
+{{product.name }}
+<form method = "GET">
+    {{ formset.as_p }}
+    <input type = "submit" value = "Submit">
+</form>
+{% endblock %}  

@@ -195,16 +195,22 @@ class Product_on_partner_status(models.Model):
         Product,
         verbose_name="Продукт",
         on_delete=models.CASCADE,
-        related_name='partner_status'
+        related_name='partner_status',        
+        null=True
     )
     status = models.BooleanField(
-        verbose_name="Залит на сайт"
+        verbose_name="Залит на сайт",
+        blank=True,
+        default=False,
+        null=True
     )
     partner = models.ForeignKey(
         Partner,
         verbose_name="Партнер",
         on_delete=models.CASCADE,
-        related_name='partner_status'
+        related_name='partner_status',
+        blank=True,
+        null=True
     )
     link = models.CharField(
         max_length=250,
@@ -214,13 +220,12 @@ class Product_on_partner_status(models.Model):
 
     def __str__(self):
         return f'{self.partner.name} - Залито' if self.status else f'{self.partner.name} - Не залито'
-    
+
     class Meta:
         verbose_name = 'Продукция у партнера'
         verbose_name_plural = 'Продукция у партнера'
-        constraints = [
+        """constraints = [
             UniqueConstraint(
                 fields=['product', 'partner'],
                 name='unique_product_status'),
-        ]
-        
+        ]"""
