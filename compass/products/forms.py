@@ -15,4 +15,6 @@ class ProductOnPartnerStatusForm(forms.ModelForm):
         model = Product_on_partner_status
         fields = ('partner', 'status', 'link')
         
+    def clean(self):
+        
 
