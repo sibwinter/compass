@@ -120,7 +120,7 @@ class Product(models.Model):
     price = models.FloatField(
         verbose_name='Цена, руб.',
         blank=True,
-        null=True
+        null=True,
     )
     sku = models.CharField(
         verbose_name='Артикул сайта',
@@ -180,9 +180,14 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+    def __iter__(self):
+        for field in self._meta.fields:
+            yield (field.verbose_name, field.value_to_string(self))
+            
     class Meta:
         verbose_name = 'Продукция'
         verbose_name_plural = 'Продукция'
+        
 
 
 class Product_on_partner_status(models.Model):

@@ -16,7 +16,9 @@ class ProductAdmin(admin.ModelAdmin):
         'main_category',
         'model_line',
         'instruction')
-    search = ('main_category', 'model_line',)
+    
+    search_fields = ('name', 'model_line__name',)
+    list_filter  = ('main_category', 'model_line',)
     inlines = [Product_on_partnerInstanceInline, ]
 
 

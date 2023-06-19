@@ -20,7 +20,7 @@ from .models import Model_line, Product, Product_on_partner_status, Сategories
 
 def pagination(products, page_number):
     """ Функция для формирования пагинации на странице."""
-    paginator = Paginator(products, 10)
+    paginator = Paginator(products, 25)
     return paginator.get_page(page_number)
 
 def index(request):
@@ -53,11 +53,25 @@ def product_detail(request, product_pk):
         url = 'Null'
         site_url = 'Null'
         is_on_server = False
+
+        attributes = product.__iter__
+        """attributes['Цена']=product.price.__iter__
+        attributes['main_category']=product.main_category
+        attributes['sku']=product.sku
+        attributes['name']=product.name
+        attributes['url']=product.url
+        attributes['description']=product.description
+        attributes['barcode']=product.barcode
+        attributes['dimensions']=product.dimensions
+        attributes['model_line']=product.model_line
+        attributes['height']=product.height
+        attributes['width']=product.width
+        attributes['depth']=product.depth
+        attributes['weight']=product.weight"""
     context = {
         'product': product,
-        'description': description,
+        'attributes': attributes,
         'statuses': statuses,
-        'url': url,
         'site_url': site_url,
         'is_on_server': is_on_server
 
@@ -137,9 +151,13 @@ def model_line_detail(request, model_line_pk):
         total_count = model_line.products.count()
         counts[partner] = (current_count, total_count)
         
-
-    context = {
+    products = model_line.products.all()
+       
+    context = { 
+        'page_obj': pagination(products, request.GET.get('page')),
+        'description': description,
         'partners': partners,
+        'products':products,
         'model_line': model_line,
         'counts': counts,        
     }
@@ -178,16 +196,16 @@ def product_import(request):
     feed = get_products_dict()
 
     for sku, params in feed.items():
-        cat_name = params['category'] if len(params['category']) > 0 else 'Default'
+        cat_name = params['category'] if params['category'] is not None and len(params['category']) > 0 else 'Default'
         category, created = Сategories.objects.get_or_create(name=cat_name)
         
-        model_line_name = params['model_line'] if len(params['model_line']) > 0 else 'Default'
+        model_line_name = params['model_line'] if params['model_line'] is not None and len(params['model_line']) > 0 else 'Default'
         model_line, created = Model_line.objects.get_or_create(name=model_line_name)
         
         #print(model_line, category, created)
         product, created = Product.objects.get_or_create(id=params['id'])
-        print(product.name, product. model_line)
-        if created:
+        
+        if product:
             product.price = params['price']
             product.main_category = category
             product.sku = sku
@@ -195,7 +213,6 @@ def product_import(request):
             product.url = params['url']
             product.description = params['description']
             product.barcode = ''.join(params['barcode'])
-            product.id = params['id']
             product.dimensions = ''.join(params['dimensions'])
             product.model_line = model_line
             product.height = float(params['height'].replace(',', '.')) if len(params['height']) > 0 else None
@@ -204,5 +221,6 @@ def product_import(request):
             product.weight = float(params['weight'].replace(',', '.')) if len(params['weight']) > 0 else None
 
         product.save()
+        print(product.name, product.model_line, created)
        # print(product)
     return redirect(reverse('products:index'))

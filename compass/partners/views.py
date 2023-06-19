@@ -37,6 +37,7 @@ def index(request):
     description = 'Партнеры мебельной фабрики Компасс'
     partners = [object for object in Partner.objects.all()]
     counts: dict = {}
+    main_table = {}
     for partner in partners:
         """current_count = (Product_on_partner_status.objects
                 .filter(product__model_line=line)
@@ -49,8 +50,19 @@ def index(request):
                 .count()
             )
         counts[partner] =  total_count
+        lines = [object for object in Model_line.objects.all()]
+        lines_count={}
+        for line in lines:
+            lines_count[line] = (Product_on_partner_status.objects
+                                          .filter(product__model_line=line)
+                                          .filter(partner=partner)
+                                          .count())
+        main_table[partner] = lines_count
+
     context = { 
         'counts': counts,
+        'lines': lines,
+        'main_table': main_table,
         'description': description
     }
     return render(request, template, context)
