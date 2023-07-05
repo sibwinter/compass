@@ -1,11 +1,16 @@
 import os
 from django.forms import modelformset_factory
+from django import forms
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
+from django.db.models.functions import Lower
 from ftplib import FTP
 from pathlib import Path
+
+from dotenv import load_dotenv
+load_dotenv()
 
 import requests
 from products.parser import get_products_dict
@@ -27,10 +32,18 @@ def pagination(products, page_number):
 def index(request):
     template = 'products/index.html'
     description = 'Продукция фабрики'
+    query = request.GET.get('q')
     products = Product.objects.all().select_related('model_line', 'main_category')
+    if query is not None:
+        products = (Product.objects.annotate(name_lower=Lower('name'))
+                                   .select_related('model_line', 'main_category')
+                                   .filter(name_lower__icontains=query)
+                                   .order_by('id')
+        )
     context = {
         'page_obj': pagination(products, request.GET.get('page')),
-        'description': description
+        'description': description,
+        'query':query
     }
     return render(request, template, context)
 
@@ -55,20 +68,20 @@ def product_detail(request, product_pk):
         site_url = 'Null'
         is_on_server = False
 
-        attributes = product.__iter__
-        """attributes['Цена']=product.price.__iter__
-        attributes['main_category']=product.main_category
-        attributes['sku']=product.sku
-        attributes['name']=product.name
-        attributes['url']=product.url
-        attributes['description']=product.description
-        attributes['barcode']=product.barcode
-        attributes['dimensions']=product.dimensions
-        attributes['model_line']=product.model_line
-        attributes['height']=product.height
-        attributes['width']=product.width
-        attributes['depth']=product.depth
-        attributes['weight']=product.weight"""
+    attributes = product.__iter__
+    """attributes['Цена']=product.price.__iter__
+    attributes['main_category']=product.main_category
+    attributes['sku']=product.sku
+    attributes['name']=product.name
+    attributes['url']=product.url
+    attributes['description']=product.description
+    attributes['barcode']=product.barcode
+    attributes['dimensions']=product.dimensions
+    attributes['model_line']=product.model_line
+    attributes['height']=product.height
+    attributes['width']=product.width
+    attributes['depth']=product.depth
+    attributes['weight']=product.weight"""
     context = {
         'product': product,
         'attributes': attributes,
@@ -85,9 +98,11 @@ def shoot_instruction_to_server(request, product_pk):
         pk=product_pk
     )
 
-    ftp = FTP('45.84.226.237')  # connect to host, default port
-    ftp.login('admin_2', 'qg2op6X9fQ') 
-    ftp.cwd('public_html/pdf') 
+    print(os.getenv('FTP_HOST'),os.getenv('FTP_LOGIN'), os.getenv('FTP_PASSWORD'),os.getenv('FTP_PATH')) 
+  
+    ftp = FTP(os.getenv('FTP_HOST'))  # connect to host, default port
+    ftp.login(os.getenv('FTP_LOGIN'), os.getenv('FTP_PASSWORD')) 
+    ftp.cwd(os.getenv('FTP_PATH')) 
     
 
     url = product.instruction.path
@@ -141,18 +156,17 @@ def product_in_partners_edit(request, product_pk):
     # creating a formset and 5 instances of GeeksForm
     ProductInPartnersFormSet = modelformset_factory(
         Product_on_partner_status, 
-        fields ="__all__", 
+        fields =('partner', 'status','link'),
+        widgets = {'status':forms.CheckboxInput,  },
         extra=0, 
-        can_delete=False
     )
     
-    formset = ProductInPartnersFormSet(queryset=Product_on_partner_status.objects.filter(product=product))
+    formset = ProductInPartnersFormSet(request.POST or None, queryset=Product_on_partner_status.objects.filter(product=product))
+    print(formset.is_valid() )
     context['formset'] = formset
     context['product'] = product
-    print(formset.is_valid())
     if formset.is_valid():
         instances = formset.save()
-        print(instances)
         return redirect(reverse('products:product_detail', args=[product_pk]))
         
     return render(request,

@@ -5,10 +5,23 @@
      {{product.name }}
 {% endblock %}
 {% block content %}
-{% csrf_token %}
+
 {{product.name }}
-<form method = "GET">
+
+<div class="row justify-content-center">
+    <div class="col-md-8 p-5">
+      <div class="card">
+        <div class="card-header">       
+          Редактирование наличия товара             
+        </div>
+        <div class="card-body">
+<form method="post" enctype="multipart/form-data">
+    
+{% csrf_token %}
     {{ formset.as_p }}
+    
     <input type = "submit" value = "Submit">
 </form>
+</div>
+</div>
 {% endblock %}  

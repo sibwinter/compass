@@ -11,10 +11,16 @@ class ProductForm(forms.ModelForm):
 
 
 class ProductOnPartnerStatusForm(forms.ModelForm):
+    def __init__(self, *args, **kwargs):
+        super(ProductOnPartnerStatusForm, self).__init__(*args, **kwargs)
+        self.fields['status'].widget = forms.CheckboxInput
+
+    status = forms.BooleanField(widget=forms.CheckboxInput)
     class Meta:
         model = Product_on_partner_status
         fields = ('partner', 'status', 'link')
-        
-    def clean(self):
-        
+        widgets = {
+            'status': forms.RadioSelect,
+        }
 
+    

@@ -27,12 +27,12 @@ def get_products_dict() -> dict:
         description = offer.find('description').text
         barcode = offer.find('barcode').text
         id = offer.get('id')
-        dimensions = ''.join([param.text for param in list(offer) if param.get('name') == 'Размеры изделия, см'])
-        model_line = ''.join([param.text for param in list(offer) if param.get('name') == 'Модельная линейка'])
-        height = ''.join([param.text for param in list(offer) if param.get('name') == 'Высота изделия, см'])
-        width = ''.join([param.text for param in list(offer) if param.get('name') == 'Ширина изделия, см'])
-        depth = ''.join([param.text for param in list(offer) if param.get('name') == 'Глубина изделия, см'])
-        weight = ''.join([param.text for param in list(offer) if param.get('name') == 'Вес брутто, кг.']) 
+        dimensions = ''.join([str(param.text) for param in list(offer) if param.get('name') == 'Размеры изделия, см'])        
+        model_line = ''.join([str(param.text) for param in list(offer) if param.get('name') == 'Модельная линейка'and param.text is not None])
+        height = ''.join([str(param.text) for param in list(offer) if param.get('name') == 'Высота изделия, см' and param.text is not None])
+        width = ''.join([(param.text) for param in list(offer) if param.get('name') == 'Ширина изделия, см' and param.text is not None]   )
+        depth = ''.join([param.text for param in list(offer) if param.get('name') == 'Глубина изделия, см' and param.text is not None])
+        weight = ''.join([param.text for param in list(offer) if param.get('name') == 'Вес брутто, кг.' and param.text is not None]) 
 
         BUFFER[sku] = {
             'name':name,
