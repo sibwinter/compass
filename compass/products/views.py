@@ -33,9 +33,16 @@ def index(request):
     template = 'products/index.html'
     description = 'Продукция фабрики'
     query = request.GET.get('q')
+    is_have_packeges = Product.objects.filter(packaging_demensions='').count()
+    is_have_packeges_count = Product.objects.filter(packaging_count=None).count()
+    is_have_weight_count = Product.objects.filter(weight=None).count()
+    is_have_width_count = Product.objects.filter(width=None).count()
+    is_have_height_count = Product.objects.filter(height=None).count()
+    is_have_depth_count = Product.objects.filter(depth=None).count()
+    is_have_instruction_count = Product.objects.filter(instruction=None).count()
     products = Product.objects.all().select_related('model_line', 'main_category')
     if query is not None:
-        products = (Product.objects.annotate(name_lower=Lower('name'))
+        products = (Product.objects.annotate(name_lower=Lower('name')) #not working with SQlite
                                    .select_related('model_line', 'main_category')
                                    .filter(name_lower__icontains=query)
                                    .order_by('id')
@@ -43,6 +50,13 @@ def index(request):
     context = {
         'page_obj': pagination(products, request.GET.get('page')),
         'description': description,
+        'is_have_packeges': is_have_packeges,
+        'is_have_packeges_count': is_have_packeges_count,
+        'is_have_weight_count': is_have_weight_count,
+        'is_have_width_count': is_have_width_count,
+        'is_have_height_count': is_have_height_count,
+        'is_have_depth_count': is_have_depth_count,
+        'is_have_instruction_count': is_have_instruction_count,
         'query':query
     }
     return render(request, template, context)
@@ -259,6 +273,8 @@ def product_import(request):
             product.description = params['description']
             product.barcode = ''.join(params['barcode'])
             product.dimensions = ''.join(params['dimensions'])
+            product.packaging_demensions = ''.join(params['packaging_demensions'])
+            product.packaging_count = int(params['packaging_count'].replace(',', '.')) if len(params['packaging_count']) > 0 else None
             product.model_line = model_line
             product.height = float(params['height'].replace(',', '.')) if len(params['height']) > 0 else None
             product.width = float(params['width'].replace(',', '.').replace('-', '.')) if len(params['width']) > 0 else None
@@ -266,6 +282,33 @@ def product_import(request):
             product.weight = float(params['weight'].replace(',', '.')) if len(params['weight']) > 0 else None
 
         product.save()
-        print(product.name, product.model_line, created)
+        print(product.name, product.packaging_count, created)
        # print(product)
     return redirect(reverse('products:index'))
+
+
+def products_with_problem(request, problem_parameter):
+    template = 'products/problem_parameter.html'
+    if problem_parameter == 'packaging_demensions':
+        products = Product.objects.filter(packaging_demensions='').order_by('model_line')
+    if problem_parameter == 'packaging_count':
+        products = Product.objects.filter(packaging_count=None).order_by('model_line')
+    if problem_parameter == 'weight':
+        products = Product.objects.filter(weight=None).order_by('model_line')
+    if problem_parameter == 'height':
+        products = Product.objects.filter(height=None).order_by('model_line')
+    if problem_parameter == 'width':
+        products = Product.objects.filter(width=None).order_by('model_line')
+    if problem_parameter == 'depth':
+        products = Product.objects.filter(depth=None).order_by('model_line')
+    if problem_parameter == 'instruction':
+        products = Product.objects.filter(instruction=None).order_by('model_line')
+        
+    description = (f'Проблемы с параметром {problem_parameter}. '
+                   f'Найдено {products.count()} ошибок'
+                   )
+    context = {
+        'page_obj': pagination(products, request.GET.get('page')),
+        'description': description,
+    }
+    return render(request, template, context)

@@ -2,6 +2,59 @@
 {% load static %}
 {% block content %}   
     <h1>{{ description }}</h1> 
+    
+    <div class="fs-5 col-md-6" >
+      <h3>Проблемы в характеристиках товаров</h1> 
+      
+
+    <table class="table table-hover">
+      <thead>
+      <tr>
+        <th scope="col">характеристика</th>
+        <th scope="col">кол-во</th>
+        <th scope="col">ссылка</th>
+      </tr>
+      </thead>
+      <tbody>
+      <tr class="table-warning">
+        <th scope="row">Габариты упаковок</th>
+        <td>{{is_have_packeges}}</td>
+        <td> <a href="{% url 'products:products_with_problem' 'packaging_demensions' %}">подробнее </a></td>
+      </tr>
+      
+      <tr class="table-warning">
+        <th scope="row">кол-во упаковок</th>
+        <td>{{is_have_packeges_count}}</td>
+        <td><a href="{% url 'products:products_with_problem' 'packaging_count' %}">подробнее </a></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="row">вес</th>
+        <td>{{is_have_weight_count}}</td>
+        <td><a href="{% url 'products:products_with_problem' 'weight' %}">подробнее </a></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="row">ширина</th>
+        <td>{{is_have_width_count}}</td>
+        <td><a href="{% url 'products:products_with_problem' 'width' %}">подробнее </a></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="row">высота</th>
+        <td>{{is_have_height_count}}</td>
+        <td><a href="{% url 'products:products_with_problem' 'height' %}">подробнее </a></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="row">глубина</th>
+        <td>{{is_have_depth_count}}</td>
+        <td><a href="{% url 'products:products_with_problem' 'depth' %}">подробнее </a></td>
+      </tr>
+      <tr class="table-warning">
+        <th scope="row">инструкция</th>
+        <td>{{is_have_instruction_count}}</td>
+        <td><a href="{% url 'products:products_with_problem' 'instruction' %}">подробнее </a></td>
+      </tr>
+      </tbody>
+    </table>
+  </div>
 
     <button type="submit" class="btn btn-primary">
 

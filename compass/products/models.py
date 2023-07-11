@@ -171,6 +171,17 @@ class Product(models.Model):
         blank=True,
         null=True
     )
+    packaging_demensions = models.CharField(
+        verbose_name='Габариты упаковок',
+        max_length=500,
+        blank=True,
+        null=True
+    )
+    packaging_count = models.SmallIntegerField(
+        verbose_name='Количество упаковок',
+        blank=True,
+        null=True
+    )
     site_id = models.IntegerField(
         verbose_name='ID товара с сайта',
         blank=True,
