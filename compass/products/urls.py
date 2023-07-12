@@ -15,6 +15,5 @@ urlpatterns = [
     path('products/<int:product_pk>/to_server', views.shoot_instruction_to_server, name='shoot_instruction_to_server'),
     path('products/model_lines/<int:model_line_pk>', views.model_line_detail, name='model_line_detail'),
     path('products/model_lines/', views.model_lines, name='model_lines'),
-    path('products/progress/', views.chart, name='chart'),
     path('products/new_progress/', views.create_new_progress, name='create_new_progress'),
 ]

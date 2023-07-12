@@ -33,6 +33,31 @@ def pagination(products, page_number):
     paginator = Paginator(products, 25)
     return paginator.get_page(page_number)
 
+def get_chart():
+    progress = Progress.objects.all()
+    fig1 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_packeges_demensions_count for today_prog in progress],
+        color_discrete_sequence = ['blue'],
+        labels={'x': 'Дата', 'y': 'нет размеров упаковок'}
+    )
+    fig2 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_packeges_count for today_prog in progress],
+        color_discrete_sequence = ['red'],
+        labels={'x': 'Дата', 'y': 'нет кол-во упаковок'}
+    )
+    fig3 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_weight_count for today_prog in progress],
+        color_discrete_sequence = ['green'],
+        labels={'x': 'Дата', 'y': 'нет веса'}
+    )
+
+    fig = go.Figure(data=fig1.data + fig2.data + fig3.data)
+
+    chart = fig.to_html()
+    return chart
 
 def index(request):
     template = 'products/index.html'
@@ -62,7 +87,8 @@ def index(request):
         'is_have_height_count': is_have_height_count,
         'is_have_depth_count': is_have_depth_count,
         'is_have_instruction_count': is_have_instruction_count,
-        'query':query
+        'query':query,
+        'chart': get_chart()
     }
     return render(request, template, context)
 
@@ -319,34 +345,7 @@ def products_with_problem(request, problem_parameter):
     return render(request, template, context)
 
 
-def chart(request):
-    progress = Progress.objects.all()
-    title = 'График'
-    fig1 = px.line(
-        x=[today_prog.date for today_prog in progress],
-        y=[today_prog.have_not_packeges_demensions_count for today_prog in progress],
-        color_discrete_sequence = ['blue'],
-        labels={'x': 'Дата', 'y': 'нет размеров упаковок'}
-    )
-    fig2 = px.line(
-        x=[today_prog.date for today_prog in progress],
-        y=[today_prog.have_not_packeges_count for today_prog in progress],
-        color_discrete_sequence = ['red'],
-        labels={'x': 'Дата', 'y': 'нет кол-во упаковок'}
-    )
-    fig3 = px.line(
-        x=[today_prog.date for today_prog in progress],
-        y=[today_prog.have_not_weight_count for today_prog in progress],
-        color_discrete_sequence = ['green'],
-        labels={'x': 'Дата', 'y': 'нет веса'}
-    )
 
-    fig = go.Figure(data=fig1.data + fig2.data + fig3.data)
-
-    chart = fig.to_html()
-    context = {'chart': chart,
-               'title': title}
-    return render(request, 'products/progress.html', context)
 
 def create_new_progress(request):
     progress, created = Progress.objects.get_or_create(
