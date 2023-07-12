@@ -1,6 +1,6 @@
 from django.contrib import admin
 
-from .models import Model_line, Product, Product_on_partner_status, Сategories
+from .models import Model_line, Product, Product_on_partner_status, Progress, Сategories
 
 
 class Product_on_partnerInstanceInline(admin.TabularInline):
@@ -31,3 +31,6 @@ class СategoriesAdmin(admin.ModelAdmin):
 class Model_lineAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+@admin.register(Progress)
+class Model_lineAdmin(admin.ModelAdmin):
+    list_display = ('date',)

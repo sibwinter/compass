@@ -3,11 +3,12 @@ import uuid
 from django.db import models
 from django.db.models import UniqueConstraint
 from slugify import slugify
+from django.utils import timezone
 
 from partners.models import Partner
 
 
-# Create your models here.
+
 
 
 def get_upload_path(instance, filename):
@@ -132,7 +133,6 @@ class Product(models.Model):
     url = models.CharField(
         verbose_name='Ссылка на сайт',
         max_length=250,
-        unique=True,
         blank=True,
         null=True
     )
@@ -240,3 +240,29 @@ class Product_on_partner_status(models.Model):
                 fields=['product', 'partner'],
                 name='unique_product_status'),
         ]"""
+
+
+class Progress(models.Model):
+    date = models.DateField(
+        verbose_name='дата',
+        auto_created=True,
+        default=timezone.now().date()
+        )
+    have_not_packeges_demensions_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено кол-во упаковок'
+        )
+    have_not_packeges_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено размеров упаковок'
+        )
+    have_not_weight_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено вес'
+        )
+    have_not_width_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено ширина'
+        )
+    have_not_height_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено высота'
+        )
+    have_not_depth_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено глубина'
+        )

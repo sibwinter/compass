@@ -6,8 +6,12 @@ from django.core.paginator import Paginator
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
 from django.db.models.functions import Lower
+from django.utils import timezone
 from ftplib import FTP
 from pathlib import Path
+
+import plotly.express as px
+import plotly.graph_objects as go
 
 from dotenv import load_dotenv
 load_dotenv()
@@ -21,13 +25,14 @@ from compass.settings import MEDIA_ROOT
 from compass.settings import BASE_DIR, MEDIA_URL
 
 
-from .models import Model_line, Product, Product_on_partner_status, Сategories
+from .models import Model_line, Product, Product_on_partner_status, Progress, Сategories
 
 
 def pagination(products, page_number):
     """ Функция для формирования пагинации на странице."""
     paginator = Paginator(products, 25)
     return paginator.get_page(page_number)
+
 
 def index(request):
     template = 'products/index.html'
@@ -312,3 +317,46 @@ def products_with_problem(request, problem_parameter):
         'description': description,
     }
     return render(request, template, context)
+
+
+def chart(request):
+    progress = Progress.objects.all()
+    title = 'График'
+    fig1 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_packeges_demensions_count for today_prog in progress],
+        color_discrete_sequence = ['blue'],
+        labels={'x': 'Дата', 'y': 'нет размеров упаковок'}
+    )
+    fig2 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_packeges_count for today_prog in progress],
+        color_discrete_sequence = ['red'],
+        labels={'x': 'Дата', 'y': 'нет кол-во упаковок'}
+    )
+    fig3 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_weight_count for today_prog in progress],
+        color_discrete_sequence = ['green'],
+        labels={'x': 'Дата', 'y': 'нет веса'}
+    )
+
+    fig = go.Figure(data=fig1.data + fig2.data + fig3.data)
+
+    chart = fig.to_html()
+    context = {'chart': chart,
+               'title': title}
+    return render(request, 'products/progress.html', context)
+
+def create_new_progress(request):
+    progress, created = Progress.objects.get_or_create(
+        date=timezone.now().date()
+    )
+    progress.have_not_depth_count = Product.objects.filter(depth=None).count()
+    progress.have_not_height_count = Product.objects.filter(height=None).count()
+    progress.have_not_packeges_count = Product.objects.filter(packaging_count=None).count()
+    progress.have_not_packeges_demensions_count = Product.objects.filter(packaging_demensions='').count()    
+    progress.have_not_weight_count = Product.objects.filter(weight=None).count()
+    progress.have_not_width_count = Product.objects.filter(width=None).count()
+    progress.save()
+    return redirect(reverse('products:index'))

@@ -54,11 +54,16 @@
       </tr>
       </tbody>
     </table>
+    <a href="{% url 'products:chart'  %}">смотреть прогресс </a>
   </div>
 
     <button type="submit" class="btn btn-primary">
 
       <a class="nav-link active" href="{% url 'products:product_import' %}">обновить товары</a></td>              
+    </button> 
+    <button type="submit" class="btn btn-primary">
+
+      <a class="nav-link active" href="{% url 'products:create_new_progress' %}">обновить прогресс</a></td>              
     </button> 
     <form action="." method="get">
       <br>
