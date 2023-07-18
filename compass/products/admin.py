@@ -1,11 +1,11 @@
 from django.contrib import admin
 
-from .models import Model_line, Product, Product_on_partner_status, Сategories
+from .models import Model_line, Product, Product_on_partner_status, Progress, Сategories
 
 
 class Product_on_partnerInstanceInline(admin.TabularInline):
     model = Product_on_partner_status
-    extra = 1
+    extra = 0
     min_num = 1
 
 
@@ -16,7 +16,9 @@ class ProductAdmin(admin.ModelAdmin):
         'main_category',
         'model_line',
         'instruction')
-    search = ('main_category', 'model_line',)
+    
+    search_fields = ('name', 'model_line__name',)
+    list_filter  = ('main_category', 'model_line',)
     inlines = [Product_on_partnerInstanceInline, ]
 
 
@@ -29,3 +31,6 @@ class СategoriesAdmin(admin.ModelAdmin):
 class Model_lineAdmin(admin.ModelAdmin):
     list_display = ('name',)
 
+@admin.register(Progress)
+class Model_lineAdmin(admin.ModelAdmin):
+    list_display = ('date',)

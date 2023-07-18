@@ -5,7 +5,8 @@ import ssl
 
 context = ssl._create_unverified_context()
 def get_products_dict() -> dict:
-    link= 'https://compass-shop.ru/yandex.xml'
+    # link= 'https://compass-shop.ru/yandex.xml'
+    link = 'https://compass-shop.ru/index.php?route=extension/feed/ocext_feed_generator_yamarket&token=yandex'
 
     context = ssl._create_unverified_context()
     tree = ET.parse(urlopen(link, context=context))
@@ -27,12 +28,14 @@ def get_products_dict() -> dict:
         description = offer.find('description').text
         barcode = offer.find('barcode').text
         id = offer.get('id')
-        dimensions = ''.join([param.text for param in list(offer) if param.get('name') == 'Размеры изделия, см'])
-        model_line = ''.join([param.text for param in list(offer) if param.get('name') == 'Модельная линейка'])
-        height = ''.join([param.text for param in list(offer) if param.get('name') == 'Высота изделия, см'])
-        width = ''.join([param.text for param in list(offer) if param.get('name') == 'Ширина изделия, см'])
-        depth = ''.join([param.text for param in list(offer) if param.get('name') == 'Глубина изделия, см'])
-        weight = ''.join([param.text for param in list(offer) if param.get('name') == 'Вес брутто, кг.']) 
+        dimensions = ''.join([str(param.text) for param in list(offer) if param.get('name') == 'Размеры изделия, см'])        
+        model_line = ''.join([str(param.text) for param in list(offer) if param.get('name') == 'Модельная линейка'and param.text is not None])
+        height = ''.join([str(param.text) for param in list(offer) if param.get('name') == 'Высота изделия, см' and param.text is not None])
+        width = ''.join([(param.text) for param in list(offer) if param.get('name') == 'Ширина изделия, см' and param.text is not None]   )
+        depth = ''.join([param.text for param in list(offer) if param.get('name') == 'Глубина изделия, см' and param.text is not None])
+        weight = ''.join([param.text for param in list(offer) if param.get('name') == 'Вес брутто, кг.' and param.text is not None]) 
+        packaging_demensions = ''.join([param.text for param in list(offer) if param.get('name') == 'Размеры упаковки, см' and param.text is not None]) 
+        packaging_count = ''.join([param.text for param in list(offer) if param.get('name') == 'Количество упаковок' and param.text is not None and len(param.text) < 2 ]) 
 
         BUFFER[sku] = {
             'name':name,
@@ -48,6 +51,8 @@ def get_products_dict() -> dict:
             'height': height,
             'width': width,
             'depth': depth,
+            'packaging_demensions': packaging_demensions,
+            'packaging_count': packaging_count,
         }
     
     return BUFFER

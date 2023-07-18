@@ -3,11 +3,12 @@ import uuid
 from django.db import models
 from django.db.models import UniqueConstraint
 from slugify import slugify
+from django.utils import timezone
 
 from partners.models import Partner
 
 
-# Create your models here.
+
 
 
 def get_upload_path(instance, filename):
@@ -119,7 +120,7 @@ class Product(models.Model):
     price = models.FloatField(
         verbose_name='Цена, руб.',
         blank=True,
-        null=True
+        null=True,
     )
     sku = models.CharField(
         verbose_name='Артикул сайта',
@@ -169,6 +170,17 @@ class Product(models.Model):
         blank=True,
         null=True
     )
+    packaging_demensions = models.CharField(
+        verbose_name='Габариты упаковок',
+        max_length=500,
+        blank=True,
+        null=True
+    )
+    packaging_count = models.SmallIntegerField(
+        verbose_name='Количество упаковок',
+        blank=True,
+        null=True
+    )
     site_id = models.IntegerField(
         verbose_name='ID товара с сайта',
         blank=True,
@@ -178,9 +190,14 @@ class Product(models.Model):
     def __str__(self):
         return self.name
     
+    def __iter__(self):
+        for field in self._meta.fields:
+            yield (field.verbose_name, field.value_to_string(self))
+            
     class Meta:
         verbose_name = 'Продукция'
         verbose_name_plural = 'Продукция'
+        
 
 
 class Product_on_partner_status(models.Model):
@@ -188,16 +205,22 @@ class Product_on_partner_status(models.Model):
         Product,
         verbose_name="Продукт",
         on_delete=models.CASCADE,
-        related_name='partner_status'
+        related_name='partner_status',        
+        null=True
     )
     status = models.BooleanField(
-        verbose_name="Залит на сайт"
+        verbose_name="Залит на сайт",
+        blank=True,
+        default=False,
+        null=True
     )
     partner = models.ForeignKey(
         Partner,
         verbose_name="Партнер",
         on_delete=models.CASCADE,
-        related_name='partner_status'
+        related_name='partner_status',
+        blank=True,
+        null=True
     )
     link = models.CharField(
         max_length=250,
@@ -207,13 +230,38 @@ class Product_on_partner_status(models.Model):
 
     def __str__(self):
         return f'{self.partner.name} - Залито' if self.status else f'{self.partner.name} - Не залито'
-    
+
     class Meta:
         verbose_name = 'Продукция у партнера'
         verbose_name_plural = 'Продукция у партнера'
-        constraints = [
+        """constraints = [
             UniqueConstraint(
                 fields=['product', 'partner'],
                 name='unique_product_status'),
-        ]
-        
+        ]"""
+
+
+class Progress(models.Model):
+    date = models.DateField(
+        verbose_name='дата',
+        auto_created=True,
+        default=timezone.now().date()
+        )
+    have_not_packeges_demensions_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено кол-во упаковок'
+        )
+    have_not_packeges_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено размеров упаковок'
+        )
+    have_not_weight_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено вес'
+        )
+    have_not_width_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено ширина'
+        )
+    have_not_height_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено высота'
+        )
+    have_not_depth_count = models.PositiveSmallIntegerField(
+        verbose_name='не заполнено глубина'
+        )

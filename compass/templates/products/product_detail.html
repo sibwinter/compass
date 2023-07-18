@@ -11,9 +11,9 @@
         <h1>Информация о продукции: {{ product.name }} </h1>
         <article class="col-12 col-md-9">
               <p>
-            Название товара: {{ product.name }}<p>
-            Категория товара:{{ product.main_category.name }}<p>
-            Модельная линейка:{{ product.model_line.name }}<p>
+              {% for name, value in attributes %}
+                {{name}}: {{ value }}<p>
+              {% endfor%}
                {%if product.instruction%}
                 {%if is_on_server%} 
                   <a href="{{ site_url }}"> Инструкция </a> <p>
@@ -61,6 +61,11 @@
         href="{% url 'products:product_edit' product.pk %}" role="button"
         >Изменить
       </a>
+      <a
+      class="btn btn-lg btn-primary"
+      href="{% url 'products:product_in_partners_edit' product.pk %}" role="button"
+      >У партнеров
+    </a>
     </div> 
       
       

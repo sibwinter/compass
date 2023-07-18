@@ -15,7 +15,6 @@
             <table class="table table-striped">                
               <thead>
                 <tr>
-                  <th scope="col">#</th>
                   <th scope="col">Партнер</th>
                   <th scope="col">Менеджер</th>
                   <th scope="col">Сайт</th>
@@ -26,8 +25,7 @@
               </thead>              
               <tbody>
                 {% for partner, count in counts.items %}
-                <tr>
-                  <th>{{partner.pk}}</th>
+                <tr> 
                   <th>
                     <a href="{% url 'partners:partner_detail' partner.pk %}">{{partner.name}} </a>
                   </th>
@@ -44,6 +42,35 @@
           </div> 
         </div> 
       </div> 
+
+      /////////
+      <div class="bd-example-snippet bd-code-snippet">
+        <div class="bd-example m-0 border-0">
+          <table class="table table-striped">                
+            <thead>
+              <tr>
+                <th scope="col">Партнер</th>
+                {% for line in lines %}
+                <th scope="col">{{line}}</th>                  
+                {%endfor%}
+              </tr>
+            </thead>              
+            <tbody>
+              {% for partner, lines in main_table.items %}
+              <tr>
+                <th>
+                  <a href="{% url 'partners:partner_detail' partner.pk %}">{{partner.name}} </a>
+                </th>
+                  {% for line, value in lines.items %}
+                    <th> {{value  }}</th>
+                  {%endfor%}
+              </tr>  
+              {% endfor %}  
+            </tbody>
+          </table>
+        </div> 
+      </div> 
+    </div> 
 
     </article>
     </div> 

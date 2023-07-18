@@ -1,35 +1,94 @@
 import os
+from django.forms import modelformset_factory
+from django import forms
 from django.shortcuts import get_object_or_404, redirect, render
 from django.core.paginator import Paginator
 from django.urls import reverse
 from django.views.decorators.csrf import csrf_protect
+from django.db.models.functions import Lower
+from django.utils import timezone
 from ftplib import FTP
 from pathlib import Path
+
+import plotly.express as px
+import plotly.graph_objects as go
+
+from dotenv import load_dotenv
+load_dotenv()
 
 import requests
 from products.parser import get_products_dict
 
 from partners.models import Partner
-from .forms import ProductForm
+from .forms import ProductForm, ProductOnPartnerStatusForm
 from compass.settings import MEDIA_ROOT
 from compass.settings import BASE_DIR, MEDIA_URL
 
 
-from .models import Model_line, Product, Product_on_partner_status, Сategories
+from .models import Model_line, Product, Product_on_partner_status, Progress, Сategories
 
 
 def pagination(products, page_number):
     """ Функция для формирования пагинации на странице."""
-    paginator = Paginator(products, 20)
+    paginator = Paginator(products, 25)
     return paginator.get_page(page_number)
+
+def get_chart():
+    progress = Progress.objects.all()
+    fig1 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_packeges_demensions_count for today_prog in progress],
+        color_discrete_sequence = ['blue'],
+        labels={'x': 'Дата', 'y': 'нет размеров упаковок'}
+    )
+    fig2 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_packeges_count for today_prog in progress],
+        color_discrete_sequence = ['red'],
+        labels={'x': 'Дата', 'y': 'нет кол-во упаковок'}
+    )
+    fig3 = px.line(
+        x=[today_prog.date for today_prog in progress],
+        y=[today_prog.have_not_weight_count for today_prog in progress],
+        color_discrete_sequence = ['green'],
+        labels={'x': 'Дата', 'y': 'нет веса'}
+    )
+
+    fig = go.Figure(data=fig1.data + fig2.data + fig3.data)
+
+    chart = fig.to_html()
+    return chart
 
 def index(request):
     template = 'products/index.html'
     description = 'Продукция фабрики'
+    query = request.GET.get('q')
+    is_have_packeges = Product.objects.filter(packaging_demensions='').count()
+    is_have_packeges_count = Product.objects.filter(packaging_count=None).count()
+    is_have_weight_count = Product.objects.filter(weight=None).count()
+    is_have_width_count = Product.objects.filter(width=None).count()
+    is_have_height_count = Product.objects.filter(height=None).count()
+    is_have_depth_count = Product.objects.filter(depth=None).count()
+    is_have_instruction_count = Product.objects.filter(instruction=None).count()
     products = Product.objects.all().select_related('model_line', 'main_category')
+    if query is not None:
+        products = (Product.objects.annotate(name_lower=Lower('name')) #not working with SQlite
+                                   .select_related('model_line', 'main_category')
+                                   .filter(name_lower__icontains=query)
+                                   .order_by('id')
+        )
     context = {
         'page_obj': pagination(products, request.GET.get('page')),
-        'description': description
+        'description': description,
+        'is_have_packeges': is_have_packeges,
+        'is_have_packeges_count': is_have_packeges_count,
+        'is_have_weight_count': is_have_weight_count,
+        'is_have_width_count': is_have_width_count,
+        'is_have_height_count': is_have_height_count,
+        'is_have_depth_count': is_have_depth_count,
+        'is_have_instruction_count': is_have_instruction_count,
+        'query':query,
+        'chart': get_chart()
     }
     return render(request, template, context)
 
@@ -53,11 +112,25 @@ def product_detail(request, product_pk):
         url = 'Null'
         site_url = 'Null'
         is_on_server = False
+
+    attributes = product.__iter__
+    """attributes['Цена']=product.price.__iter__
+    attributes['main_category']=product.main_category
+    attributes['sku']=product.sku
+    attributes['name']=product.name
+    attributes['url']=product.url
+    attributes['description']=product.description
+    attributes['barcode']=product.barcode
+    attributes['dimensions']=product.dimensions
+    attributes['model_line']=product.model_line
+    attributes['height']=product.height
+    attributes['width']=product.width
+    attributes['depth']=product.depth
+    attributes['weight']=product.weight"""
     context = {
         'product': product,
-        'description': description,
+        'attributes': attributes,
         'statuses': statuses,
-        'url': url,
         'site_url': site_url,
         'is_on_server': is_on_server
 
@@ -70,9 +143,11 @@ def shoot_instruction_to_server(request, product_pk):
         pk=product_pk
     )
 
-    ftp = FTP('45.84.226.237')  # connect to host, default port
-    ftp.login('admin_2', 'qg2op6X9fQ') 
-    ftp.cwd('public_html/pdf') 
+    print(os.getenv('FTP_HOST'),os.getenv('FTP_LOGIN'), os.getenv('FTP_PASSWORD'),os.getenv('FTP_PATH')) 
+  
+    ftp = FTP(os.getenv('FTP_HOST'))  # connect to host, default port
+    ftp.login(os.getenv('FTP_LOGIN'), os.getenv('FTP_PASSWORD')) 
+    ftp.cwd(os.getenv('FTP_PATH')) 
     
 
     url = product.instruction.path
@@ -99,7 +174,8 @@ def product_create(request):
     return render(request, 'products/product_create.html', {'form': form})
 
 
-def product_edit(request, product_pk):
+def product_edit(request, product_pk):    
+    """Редактируем товар в наешй базе."""
     product = get_object_or_404(Product, pk=product_pk)
     # if product.author == request.user:
     form = ProductForm(
@@ -109,10 +185,38 @@ def product_edit(request, product_pk):
     )
     if form.is_valid():
         product.save()
-        return redirect(reverse('products:product_detail', args=[product_pk]))
+        return redirect(reverse('products:product_detail', args=[product_pk]))    
     return render(request,
-                    'products/product_create.html',
-                    {'form': form, 'is_edit': True})
+                  'products/product_create.html',
+                  {'form': form, 'is_edit': True})
+
+
+def product_in_partners_edit(request, product_pk):
+    """Редактируем наличие товара у поставщиков."""
+    product = get_object_or_404(Product, pk=product_pk)
+    """product_in_partners = get_object_or_404(Product_on_partner_status, product=product)
+    form = ProductOnPartnerStatusForm(request.POST or None,)"""
+    context ={}
+  
+    # creating a formset and 5 instances of GeeksForm
+    ProductInPartnersFormSet = modelformset_factory(
+        Product_on_partner_status, 
+        fields =('partner', 'status','link'),
+        widgets = {'status':forms.CheckboxInput,  },
+        extra=0, 
+    )
+    
+    formset = ProductInPartnersFormSet(request.POST or None, queryset=Product_on_partner_status.objects.filter(product=product))
+    print(formset.is_valid() )
+    context['formset'] = formset
+    context['product'] = product
+    if formset.is_valid():
+        instances = formset.save()
+        return redirect(reverse('products:product_detail', args=[product_pk]))
+        
+    return render(request,
+                      'products/products_in_partners_edit.html',
+                      context)
 
 
 def model_line_detail(request, model_line_pk):
@@ -137,9 +241,13 @@ def model_line_detail(request, model_line_pk):
         total_count = model_line.products.count()
         counts[partner] = (current_count, total_count)
         
-
-    context = {
+    products = model_line.products.all()
+       
+    context = { 
+        'page_obj': pagination(products, request.GET.get('page')),
+        'description': description,
         'partners': partners,
+        'products':products,
         'model_line': model_line,
         'counts': counts,        
     }
@@ -181,12 +289,16 @@ def product_import(request):
         cat_name = params['category'] if params['category'] is not None and len(params['category']) > 0 else 'Default'
         category, created = Сategories.objects.get_or_create(name=cat_name)
         
-        model_line_name = params['model_line'] if len(params['model_line']) > 0 else 'Default'
+        model_line_name = params['model_line'] if params['model_line'] is not None and len(params['model_line']) > 0 else 'Default'
         model_line, created = Model_line.objects.get_or_create(name=model_line_name)
         
         #print(model_line, category, created)
         product, created = Product.objects.get_or_create(id=params['id'])
+<<<<<<< HEAD
         print(product.name)
+=======
+        
+>>>>>>> refs/remotes/origin/main
         if product:
             product.price = params['price']
             product.main_category = category
@@ -195,8 +307,13 @@ def product_import(request):
             product.url = params['url']
             product.description = params['description']
             product.barcode = ''.join(params['barcode'])
+<<<<<<< HEAD
             product.site_id = int(params['id']) if params['id'] is not None else None
+=======
+>>>>>>> refs/remotes/origin/main
             product.dimensions = ''.join(params['dimensions'])
+            product.packaging_demensions = ''.join(params['packaging_demensions'])
+            product.packaging_count = int(params['packaging_count'].replace(',', '.')) if len(params['packaging_count']) > 0 else None
             product.model_line = model_line
             product.height = float(params['height'].replace(',', '.')) if len(params['height']) > 0 else None
             product.width = float(params['width'].replace(',', '.').replace('-', '.')) if len(params['width']) > 0 else None
@@ -204,5 +321,49 @@ def product_import(request):
             product.weight = float(params['weight'].replace(',', '.')) if len(params['weight']) > 0 else None
 
         product.save()
+        print(product.name, product.packaging_count, created)
        # print(product)
+    return redirect(reverse('products:index'))
+
+
+def products_with_problem(request, problem_parameter):
+    template = 'products/problem_parameter.html'
+    if problem_parameter == 'packaging_demensions':
+        products = Product.objects.filter(packaging_demensions='').order_by('model_line')
+    if problem_parameter == 'packaging_count':
+        products = Product.objects.filter(packaging_count=None).order_by('model_line')
+    if problem_parameter == 'weight':
+        products = Product.objects.filter(weight=None).order_by('model_line')
+    if problem_parameter == 'height':
+        products = Product.objects.filter(height=None).order_by('model_line')
+    if problem_parameter == 'width':
+        products = Product.objects.filter(width=None).order_by('model_line')
+    if problem_parameter == 'depth':
+        products = Product.objects.filter(depth=None).order_by('model_line')
+    if problem_parameter == 'instruction':
+        products = Product.objects.filter(instruction=None).order_by('model_line')
+        
+    description = (f'Проблемы с параметром {problem_parameter}. '
+                   f'Найдено {products.count()} ошибок'
+                   )
+    context = {
+        'page_obj': pagination(products, request.GET.get('page')),
+        'description': description,
+    }
+    return render(request, template, context)
+
+
+
+
+def create_new_progress(request):
+    progress, created = Progress.objects.get_or_create(
+        date=timezone.now().date()
+    )
+    progress.have_not_depth_count = Product.objects.filter(depth=None).count()
+    progress.have_not_height_count = Product.objects.filter(height=None).count()
+    progress.have_not_packeges_count = Product.objects.filter(packaging_count=None).count()
+    progress.have_not_packeges_demensions_count = Product.objects.filter(packaging_demensions='').count()    
+    progress.have_not_weight_count = Product.objects.filter(weight=None).count()
+    progress.have_not_width_count = Product.objects.filter(width=None).count()
+    progress.save()
     return redirect(reverse('products:index'))

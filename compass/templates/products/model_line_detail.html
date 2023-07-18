@@ -22,7 +22,6 @@
                   <th scope="col">#</th>
                   <th scope="col">Партнер</th>
                   <th scope="col">Кол-во залито</th>
-                  <th scope="col">Всего</th>
                 </tr>
               </thead>              
               <tbody>
@@ -32,8 +31,7 @@
                   <th>
                     <a href="{% url 'partners:partner_detail' partner.pk %}">{{partner.name}} </a>
                   </th>
-                  <th>{{count.0}}</th>
-                  <th> {{count.1}}</th> 
+                  <th>{{count.0}} из {{count.1}}</th>
                  
                 </tr>  
                 {% endfor %}  
@@ -44,7 +42,9 @@
       </div> 
 
     </article>
-    </div> 
       
+    {% include 'includes/product_list.html' %}
+    
+  </div> 
       
 {% endblock %}
