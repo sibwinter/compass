@@ -20,7 +20,7 @@ from .models import Model_line, Product, Product_on_partner_status, Сategories
 
 def pagination(products, page_number):
     """ Функция для формирования пагинации на странице."""
-    paginator = Paginator(products, 10)
+    paginator = Paginator(products, 20)
     return paginator.get_page(page_number)
 
 def index(request):
@@ -178,7 +178,7 @@ def product_import(request):
     feed = get_products_dict()
 
     for sku, params in feed.items():
-        cat_name = params['category'] if len(params['category']) > 0 else 'Default'
+        cat_name = params['category'] if params['category'] is not None and len(params['category']) > 0 else 'Default'
         category, created = Сategories.objects.get_or_create(name=cat_name)
         
         model_line_name = params['model_line'] if len(params['model_line']) > 0 else 'Default'
@@ -186,8 +186,8 @@ def product_import(request):
         
         #print(model_line, category, created)
         product, created = Product.objects.get_or_create(id=params['id'])
-        print(product.name, product. model_line)
-        if created:
+        print(product.name)
+        if product:
             product.price = params['price']
             product.main_category = category
             product.sku = sku
@@ -195,7 +195,7 @@ def product_import(request):
             product.url = params['url']
             product.description = params['description']
             product.barcode = ''.join(params['barcode'])
-            product.id = params['id']
+            product.site_id = int(params['id']) if params['id'] is not None else None
             product.dimensions = ''.join(params['dimensions'])
             product.model_line = model_line
             product.height = float(params['height'].replace(',', '.')) if len(params['height']) > 0 else None

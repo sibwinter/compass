@@ -93,7 +93,6 @@ class Product(models.Model):
     name = models.CharField(
         verbose_name='Наименование продукции',
         max_length=250,
-        unique=True,
     )
     main_category = models.ForeignKey(
         Сategories,
@@ -125,14 +124,13 @@ class Product(models.Model):
     sku = models.CharField(
         verbose_name='Артикул сайта',
         max_length=250,
-        unique=True,
+        #unique=True,
         blank=True,
         null=True
     )
     url = models.CharField(
         verbose_name='Ссылка на сайт',
         max_length=250,
-        unique=True,
         blank=True,
         null=True
     )

@@ -2,6 +2,11 @@
 {% load static %}
 {% block content %}   
     <h1>{{ description }}</h1> 
+    <a
+        class="btn btn-lg btn-primary"
+        href="{% url 'products:product_import'%}" role="button"
+        >Импортировать товары
+      </a>
     <div class="bd-example-snippet bd-code-snippet"><div class="bd-example m-0 border-0">
       <table class="table table-striped">
             
