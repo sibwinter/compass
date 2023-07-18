@@ -248,20 +248,26 @@ class Progress(models.Model):
         default=timezone.now().date()
         )
     have_not_packeges_demensions_count = models.PositiveSmallIntegerField(
-        verbose_name='не заполнено кол-во упаковок'
+        verbose_name='не заполнено кол-во упаковок',
+        null=True
         )
     have_not_packeges_count = models.PositiveSmallIntegerField(
-        verbose_name='не заполнено размеров упаковок'
+        verbose_name='не заполнено размеров упаковок',
+        null=True
         )
     have_not_weight_count = models.PositiveSmallIntegerField(
-        verbose_name='не заполнено вес'
+        verbose_name='не заполнено вес',
+        null=True
         )
     have_not_width_count = models.PositiveSmallIntegerField(
-        verbose_name='не заполнено ширина'
+        verbose_name='не заполнено ширина',
+        null=True
         )
     have_not_height_count = models.PositiveSmallIntegerField(
-        verbose_name='не заполнено высота'
+        verbose_name='не заполнено высота',
+        null=True
         )
     have_not_depth_count = models.PositiveSmallIntegerField(
-        verbose_name='не заполнено глубина'
+        verbose_name='не заполнено глубина',
+        null=True
         )

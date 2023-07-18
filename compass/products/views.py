@@ -294,11 +294,7 @@ def product_import(request):
         
         #print(model_line, category, created)
         product, created = Product.objects.get_or_create(id=params['id'])
-<<<<<<< HEAD
-        print(product.name)
-=======
         
->>>>>>> refs/remotes/origin/main
         if product:
             product.price = params['price']
             product.main_category = category
@@ -307,10 +303,6 @@ def product_import(request):
             product.url = params['url']
             product.description = params['description']
             product.barcode = ''.join(params['barcode'])
-<<<<<<< HEAD
-            product.site_id = int(params['id']) if params['id'] is not None else None
-=======
->>>>>>> refs/remotes/origin/main
             product.dimensions = ''.join(params['dimensions'])
             product.packaging_demensions = ''.join(params['packaging_demensions'])
             product.packaging_count = int(params['packaging_count'].replace(',', '.')) if len(params['packaging_count']) > 0 else None
