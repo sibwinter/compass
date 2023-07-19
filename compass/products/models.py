@@ -4,6 +4,9 @@ from django.db import models
 from django.db.models import UniqueConstraint
 from slugify import slugify
 from django.utils import timezone
+from django.db.models.signals import post_save
+from django.dispatch import receiver
+
 
 from partners.models import Partner
 
@@ -241,6 +244,7 @@ class Product_on_partner_status(models.Model):
         ]"""
 
 
+
 class Progress(models.Model):
     date = models.DateField(
         verbose_name='дата',
@@ -271,3 +275,16 @@ class Progress(models.Model):
         verbose_name='не заполнено глубина',
         null=True
         )
+
+
+@receiver(post_save, sender=Product, dispatch_uid="create partners status relationship")
+def create_partners_relationship(sender, instance, **kwargs):
+    #creating new Product_on_partner_status when new product was created
+    for partner in Partner.objects.all():
+        new_relationship, created = Product_on_partner_status.objects.get_or_create(
+                                                                                    product = instance,
+                                                                                    partner=partner
+        )
+
+    # write you functionality
+    pass

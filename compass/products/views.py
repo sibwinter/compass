@@ -34,7 +34,7 @@ def pagination(products, page_number):
     return paginator.get_page(page_number)
 
 def get_chart():
-    progress = Progress.objects.all()
+    progress = Progress.objects.all().order_by('date')
     fig1 = px.line(
         x=[today_prog.date for today_prog in progress],
         y=[today_prog.have_not_packeges_demensions_count for today_prog in progress],
@@ -348,9 +348,11 @@ def products_with_problem(request, problem_parameter):
 
 
 def create_new_progress(request):
+    # нужно допилить автоматическое создание по расписанию или по кнопке
     progress, created = Progress.objects.get_or_create(
         date=timezone.now().date()
     )
+
     progress.have_not_depth_count = Product.objects.filter(depth=None).count()
     progress.have_not_height_count = Product.objects.filter(height=None).count()
     progress.have_not_packeges_count = Product.objects.filter(packaging_count=None).count()
