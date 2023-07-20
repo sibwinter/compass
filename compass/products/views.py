@@ -208,7 +208,7 @@ def product_in_partners_edit(request, product_pk):
     if len(variants_stolplit) == 1:
         product_to_edit = Product_on_partner_status.objects.get(
                             product=product,
-                            partner__name='Столплит')
+                            partner__name='СТОЛПЛИТ')
         print(product_to_edit)
         product_to_edit.price = next(iter(variants_stolplit.values()))[0]
         product_to_edit.link = next(iter(variants_stolplit.values()))[1]
