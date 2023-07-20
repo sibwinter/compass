@@ -16,4 +16,5 @@ urlpatterns = [
     path('products/model_lines/<int:model_line_pk>', views.model_line_detail, name='model_line_detail'),
     path('products/model_lines/', views.model_lines, name='model_lines'),
     path('products/new_progress/', views.create_new_progress, name='create_new_progress'),
+    path('products/stolplit_find_products/', views.stolplit_find_products, name='stolplit_find_products'),
 ]

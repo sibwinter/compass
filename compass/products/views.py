@@ -203,6 +203,18 @@ def product_in_partners_edit(request, product_pk):
     context ={}
 
     variants_stolplit: dict = find_price_stolplit(product.sku[0:5])
+
+    # Если найдет только один вариант то сразу обновляем статус и добавляем ссылку и цену
+    if len(variants_stolplit) == 1:
+        product_to_edit = Product_on_partner_status.objects.get(
+                            product=product,
+                            partner__name='Столплит')
+        print(product_to_edit)
+        product_to_edit.price = next(iter(variants_stolplit.values()))[0]
+        product_to_edit.link = next(iter(variants_stolplit.values()))[1]
+        product_to_edit.status = True
+        product_to_edit.save()
+
     print(variants_stolplit)
 
     # creating a formset and 5 instances of GeeksForm
@@ -374,4 +386,25 @@ def create_new_progress(request):
     progress.have_not_weight_count = Product.objects.filter(weight=None).count()
     progress.have_not_width_count = Product.objects.filter(width=None).count()
     progress.save()
+    return redirect(reverse('products:index'))
+
+
+def stolplit_find_products(request):
+    products = Product.objects.all()
+    count = 0
+    for product in products:
+
+        variants_stolplit: dict = find_price_stolplit(product.sku[0:5])
+        # Если найдет только один вариант то сразу обновляем статус и добавляем ссылку и цену
+        if len(variants_stolplit) == 1:
+            product_to_edit = Product_on_partner_status.objects.get(
+                                product=product,
+                                partner__name='Столплит')
+            print(product_to_edit)
+            product_to_edit.price = next(iter(variants_stolplit.values()))[0]
+            product_to_edit.link = next(iter(variants_stolplit.values()))[1]
+            product_to_edit.status = True
+            product_to_edit.save()
+            count += 1
+    print(f'добавлено {count} соотвествий')
     return redirect(reverse('products:index'))
