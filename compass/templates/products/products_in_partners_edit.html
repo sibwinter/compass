@@ -18,10 +18,37 @@
 <form method="post" enctype="multipart/form-data">
     
 {% csrf_token %}
-    {{ formset.as_p }}
+{{ formset.management_form }}
+<table>
+  <thead>
+      {% for form in formset.forms %}
+          {% if forloop.first %}
+              {% for field in form %}
+                  <th>{{ field.label_tag }}</th>
+              {% endfor %}
+          {% endif %}
+  </thead>
+  <tbody>
+          <tr>
+              {% for field in form %}
+                  <td>{{ field }}</td>
+              {% endfor %}
+          </tr>
+      {% endfor %}
+  </tbody>
+</table>
     
     <input type = "submit" value = "Submit">
 </form>
 </div>
+<article class="col-12 col-md-9">
+  <h3>Найдено на Столплит</h3>
+  <p>
+  {% for name, value in variants_stolplit.items %}
+    Название:{{name}}<br>
+    Цена: {{ value.0 }}<br>
+    Ссылка на товар: <a href="{{ value.1 }}"> {{ value.1 }} </a> <p><br>
+  {% endfor%}
+</article>
 </div>
 {% endblock %}  

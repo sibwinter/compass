@@ -39,11 +39,6 @@ def index(request):
     counts: dict = {}
     main_table = {}
     for partner in partners:
-        """current_count = (Product_on_partner_status.objects
-                .filter(product__model_line=line)
-                .filter(status=True)
-                .count()
-            )"""
         total_count = (Product_on_partner_status.objects
                 .filter(status=True)
                 .filter(partner=partner)
@@ -56,6 +51,7 @@ def index(request):
             lines_count[line] = (Product_on_partner_status.objects
                                           .filter(product__model_line=line)
                                           .filter(partner=partner)
+                                          .filter(status=True)
                                           .count())
         main_table[partner] = lines_count
 

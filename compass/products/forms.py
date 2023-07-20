@@ -18,7 +18,7 @@ class ProductOnPartnerStatusForm(forms.ModelForm):
     status = forms.BooleanField(widget=forms.CheckboxInput)
     class Meta:
         model = Product_on_partner_status
-        fields = ('partner', 'status', 'link')
+        fields = ('partner', 'status', 'link', 'price')
         widgets = {
             'status': forms.RadioSelect,
         }

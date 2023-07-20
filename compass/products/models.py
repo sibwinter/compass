@@ -230,6 +230,11 @@ class Product_on_partner_status(models.Model):
         blank=True,
         verbose_name='ссылка на продукт у партнера'
     )
+    price = models.PositiveSmallIntegerField(
+        verbose_name="Цена у партнера",
+        blank=True,
+        null=True
+    )
 
     def __str__(self):
         return f'{self.partner.name} - Залито' if self.status else f'{self.partner.name} - Не залито'

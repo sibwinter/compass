@@ -32,6 +32,7 @@
                   <th scope="col">Партнер</th>
                   <th scope="col">Статус</th>
                   <th scope="col">Ссылка</th>
+                  <th scope="col">Цена</th>
                 </tr>
               </thead>              
               <tbody>
@@ -49,6 +50,9 @@
                   {% else %} 
                   <th> Не загружено</th>
                   {% endif %}
+                  <th scope="row">
+                    {{ status.price}}
+                  </th>
                 </tr>  
                 {% endfor %}  
               </tbody>
@@ -68,5 +72,6 @@
     </a>
     </div> 
       
+    
       
 {% endblock %}

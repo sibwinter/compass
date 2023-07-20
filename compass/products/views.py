@@ -9,6 +9,7 @@ from django.db.models.functions import Lower
 from django.utils import timezone
 from ftplib import FTP
 from pathlib import Path
+from .partner_parser import find_price_stolplit
 
 import plotly.express as px
 import plotly.graph_objects as go
@@ -102,6 +103,9 @@ def product_detail(request, product_pk):
         pk=product_pk
     )
     statuses = Product_on_partner_status.objects.filter(product=product) 
+    #ищем товар на столплите:
+    
+
     if product.instruction:
         url = product.instruction.url
         current_path = os.path.dirname(product.instruction.url)
@@ -132,7 +136,7 @@ def product_detail(request, product_pk):
         'attributes': attributes,
         'statuses': statuses,
         'site_url': site_url,
-        'is_on_server': is_on_server
+        'is_on_server': is_on_server,
 
     }
     return render(request, template, context)
@@ -197,19 +201,29 @@ def product_in_partners_edit(request, product_pk):
     """product_in_partners = get_object_or_404(Product_on_partner_status, product=product)
     form = ProductOnPartnerStatusForm(request.POST or None,)"""
     context ={}
-  
+
+    variants_stolplit: dict = find_price_stolplit(product.sku[0:5])
+    print(variants_stolplit)
+
     # creating a formset and 5 instances of GeeksForm
     ProductInPartnersFormSet = modelformset_factory(
         Product_on_partner_status, 
-        fields =('partner', 'status','link'),
-        widgets = {'status':forms.CheckboxInput,  },
-        extra=0, 
+        fields =('partner', 'status', 'link', 'price'),
+        widgets = {'status':forms.CheckboxInput, },
+        
+        extra=0,
     )
     
-    formset = ProductInPartnersFormSet(request.POST or None, queryset=Product_on_partner_status.objects.filter(product=product))
+    formset = ProductInPartnersFormSet(
+        request.POST or None,
+        queryset=Product_on_partner_status.objects.filter(product=product),
+        #initial=[{'link': next(iter(variants_stolplit.values()))[1],
+        #         'price': float(next(iter(variants_stolplit.values()))[0].replace(' ', ''))}],
+    )
     print(formset.is_valid() )
     context['formset'] = formset
     context['product'] = product
+    context['variants_stolplit'] = variants_stolplit
     if formset.is_valid():
         instances = formset.save()
         return redirect(reverse('products:product_detail', args=[product_pk]))
