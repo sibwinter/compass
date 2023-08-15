@@ -142,3 +142,4 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 MAX_EMAIL_LENGTH = 100
 
 PRODUCTS_AT_PAGE = 20  # Товаров на странице
+

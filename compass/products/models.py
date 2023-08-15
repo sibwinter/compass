@@ -290,6 +290,4 @@ def create_partners_relationship(sender, instance, **kwargs):
                                                                                     product = instance,
                                                                                     partner=partner
         )
-
-    # write you functionality
     pass
